@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <style>
+    html, body {
+      margin: 0;
+    }
+    body {
+      display: flex;
+    }
+    p {
+      color: white;
+    }
+    #l {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+
+  margin: 0;
+  background: rgba(0,0,0,0.7);
+  color: white;
+
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
+
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+    #l div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+    #l p {
+  min-width: 80px;
+  margin: 0;
+} 
+  </style>
+  <title>teste</title>
+</head>
+<body>
+  <canvas id="can"></canvas>
+    <div id="l" style="position: fixed; ">
+      <div>
+        <!-- posicao -->
+        <div>
+      <p id="rot_x_text"></p>
+      <button id="rot_x_up">⬆️</button>
+<button id="rot_x_down">⬇️</button> 
+    </div>
+    <div>
+      <p id="rot_y_text"></p>
+      <button id="rot_y_up">⬆️</button>
+<button id="rot_y_down">⬇️</button> 
+    </div>
+    <div>
+      <p id="rot_z_text"></p>
+      <button id="rot_z_up">⬆️</button>
+<button id="rot_z_down">⬇️</button> 
+    </div>
+      </div>
+      <div>
+        <!-- rotação -->
+      <div>
+      <p id="p_x_text"></p>
+      <button id="p_x_up">⬆️</button>
+<button id="p_x_down">⬇️</button> 
+    </div>
+    <div>
+      <p id="p_y_text"></p>
+      <button id="p_y_up">⬆️</button>
+<button id="p_y_down">⬇️</button> 
+    </div>
+    <div>
+      <p id="p_z_text"></p>
+      <button id="p_z_up">⬆️</button>
+<button id="p_z_down">⬇️</button> 
+    </div>  
+      </div>
+    </div>
+    <div id="per" style="position: fixed;">
+      <p id="fps">fps:???</p>
+      <p id="ram">ram status:</p>
+    </div>
+  <script>
+    const canvas = document.getElementById("can")
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    const ctx = canvas.getContext("2d")
+    class Cube {
+      constructor(corRand, cor, w, h) {
+        this.w = w
+        this.h = h
+        this.rotation = {
+          x: 0,
+          y: 0,
+          z: 0
+        }
+        this.position = {
+          x: 0,
+          y: 0,
+          z: 5
+        }
+        this.b = true
+        this.vertices = [
+        {x:-0.5,y: 0.5,z: 0.5},
+        {x: 0.5,y: 0.5,z: 0.5},
+        {x: 0.5,y:-0.5,z: 0.5},
+        {x:-0.5,y:-0.5,z: 0.5},
+        {x:-0.5,y: 0.5,z:-0.5},
+        {x: 0.5,y: 0.5,z:-0.5},
+        {x: 0.5,y:-0.5,z:-0.5},
+        {x:-0.5,y:-0.5,z:-0.5}
+        ]
+        this.arestas = [
+        [0, 1], [1, 2], [2, 3], 
+        [4, 5], [5, 6], [6, 7],
+        [0, 4], [1, 5], [2, 6], [3, 7],
+        [3,0], [7,4]
+        ]
+        this.faces = [
+        [0,1,2,3], // frente
+        [4,5,6,7], // trás
+        [0,1,5,4], // topo
+        [1,2,6,5], // direita
+        [2,3,7,6], // baixo
+        [3,0,4,7]  // esquerda
+        ]
+        this.transparencia = 1.0
+        this.corRGB = null
+        function r() {
+          return Math.random()*255
+        }
+        if (corRand) {
+          this.corRGB = []
+          for (let i = 1; i <= 6; i++) {
+            this.corRGB.push(`rgba(${r()},${r()},${r()},${this.transparencia})`)
+          }
+        } else {
+          this.corRGB = `rgba(${cor[0]},${cor[1]},${cor[2]},${this.transparencia})`
+        }
+      }
+      set_Border(a) {
+        return a ? this.b = !this.b : this.b
+      }
+      return_Obj() {
+        return {
+          vertices: this.vertices,
+          arestas: this.arestas,
+          faces: this.faces,
+          colorRGB: this.corRGB,
+          rotate: this.rotation,
+          position: this.position
+        }
+      }
+    }
+    class Cena {
+      constructor(ctx, fov, resetCor, w, h) {
+        this.ctx = ctx
+        this.fov = fov
+        this.re = resetCor
+        this.w = w
+        this.h = h
+        this.cubes = []
+      }
+      rotateZ(p, r = r*(Math.PI/180)) {
+        const sin = Math.sin(r)
+        const cos = Math.cos(r)
+        return {
+          x: p.x * cos - p.y * sin,
+          y: p.x * sin + p.y * cos,
+          z: p.z
+        }
+      }
+      rotateY(p, r = r*(Math.PI/180)) {
+        const cos = Math.cos(r)
+        const sin = Math.sin(r)
+        return {
+          x: p.x * cos + p.z * sin,
+          y: p.y,
+          z: p.x * -sin + p.z * cos
+        }
+      }
+      rotateX(p, r = r*(Math.PI/180)) {
+        const cos = Math.cos(r)
+        const sin = Math.sin(r)
+        return {
+          x: p.x,
+          y: p.y * cos - p.z * sin,
+          z: p.y * sin + p.z * cos
+        }
+      }
+      format(p) {
+        const e = this.fov / p.z
+        return {
+          x: p.x*e+this.w/2,
+          y:-p.y*e+this.h/2,
+          z: p.z
+        }
+      }
+      clear_Canva() {
+        this.ctx.fillStyle = this.re
+        this.ctx.fillRect(0,0,this.w,this.h)
+      }
+      add_Cube(i) {
+        if (typeof i !== 'object') {
+          throw new Error("erro ao ver o tipo do cubo")
+          return
+        }
+        this.cubes.push(i)
+      }
+      main() {
+        this.clear_Canva() //resetar tela
+        let count = -1
+        for (const l of this.cubes) {
+          for (const a of l.arestas) {
+            const __l3D_1 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[a[0]],l.rotate.x), l.rotate.y), l.rotate.z)
+            const __l3D_2 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[a[1]],l.rotate.x), l.rotate.y), l.rotate.z)
+            const __l3D_1_p = {
+              x: __l3D_1.x+l.position.x,
+              y: __l3D_1.y+l.position.y,
+              z: __l3D_1.z+l.position.z
+            }
+            const __l3D_2_p = {
+              x: __l3D_2.x+l.position.x,
+              y: __l3D_2.y+l.position.y,
+              z: __l3D_2.z+l.position.z
+            }
+            const __l2D_1 = this.format(__l3D_1_p)
+            const __l2D_2 = this.format(__l3D_2_p)
+            this.ctx.beginPath()
+            this.ctx.moveTo(__l2D_1.x, __l2D_1.y)
+            this.ctx.lineTo(__l2D_2.x, __l2D_2.y)
+            this.ctx.strokeStyle = '#FF0000'
+            this.ctx.lineWidth = 5
+            this.ctx.stroke()
+            this.ctx.closePath()
+          }
+          for (const f of l.faces) {
+            count++
+            const __l3D_1 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[f[0]],l.rotate.x), l.rotate.y), l.rotate.z)
+            const __l3D_2 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[f[1]],l.rotate.x), l.rotate.y), l.rotate.z)
+            const __l3D_3 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[f[2]],l.rotate.x), l.rotate.y), l.rotate.z)
+            const __l3D_4 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[f[3]],l.rotate.x), l.rotate.y), l.rotate.z)
+            const __l3D_1_p = {
+              x: __l3D_1.x+l.position.x,
+              y: __l3D_1.y+l.position.y,
+              z: __l3D_1.z+l.position.z
+            }
+            const __l3D_2_p = {
+              x: __l3D_2.x+l.position.x,
+              y: __l3D_2.y+l.position.y,
+              z: __l3D_2.z+l.position.z
+            }
+            const __l3D_3_p = {
+              x: __l3D_3.x+l.position.x,
+              y: __l3D_3.y+l.position.y,
+              z: __l3D_3.z+l.position.z
+            }
+            const __l3D_4_p = {
+              x: __l3D_4.x+l.position.x,
+              y: __l3D_4.y+l.position.y,
+              z: __l3D_4.z+l.position.z
+            }   
+            const __l2D_1 = this.format(__l3D_1_p)
+            const __l2D_2 = this.format(__l3D_2_p)
+            const __l2D_3 = this.format(__l3D_3_p)
+            const __l2D_4 = this.format(__l3D_4_p)
+            this.ctx.beginPath()
+            this.ctx.moveTo(__l2D_1.x,   __l2D_1.y)
+            this.ctx.lineTo(__l2D_2.x, __l2D_2.y)
+            this.ctx.lineTo(__l2D_3.x, __l2D_3.y)
+            this.ctx.lineTo(__l2D_4.x, __l2D_4.y)
+            this.ctx.closePath()
+            if (typeof l.colorRGB !== 'string')
+            this.ctx.fillStyle = l.colorRGB[count]
+            else this.ctx.fillStyle=l.colorRGB
+            this.ctx.fill()
+          }
+        }
+      }
+    }
+    const cubo1 = new Cube(true, [], canvas.width, canvas.height)
+    const cena = new Cena(ctx,400,'#000000', canvas.width, canvas.height)
+    cena.add_Cube(cubo1.return_Obj())
+    let lastTime = 0
+    let frameCount = 0
+    let fps = 0
+    const t = `[ram do disp: ${navigator.deviceMemory}GB]`
+    function main() {
+      cena.main()
+      const now = performance.now()
+      frameCount++
+      if (now - lastTime >= 1000) {
+        fps = Math.round((frameCount*1000)/(now-lastTime))
+        lastTime = now
+        frameCount=0
+        document.getElementById("fps").innerText = `FPS: ${fps}`
+        document.getElementById("ram").innerText = `${t} usando: ${(performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(1)}MB, total: ${(performance.memory.totalJSHeapSize / 1024 / 1024).toFixed(1)}MB, limite: ${(performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(1)}MB`
+      }
+      requestAnimationFrame(main)
+    }
+    main()
+    document.getElementById("rot_x_up").addEventListener('click', (e) => {
+      cubo1.rotation.x += 0.1
+      document.getElementById("rot_x_text").innerText = `angulox: ${cubo1.rotation.x}°`
+    })
+    document.getElementById("rot_x_down").addEventListener('click', (e) => {
+      cubo1.rotation.x -= 0.1
+      document.getElementById("rot_x_text").innerText = `angulox: ${cubo1.rotation.x}°`
+    })
+    document.getElementById("rot_y_up").addEventListener('click', (e) => {
+      cubo1.rotation.y += 0.1
+      document.getElementById("rot_y_text").innerText = `anguloy: ${cubo1.rotation.y}°`
+    })
+    document.getElementById("rot_y_down").addEventListener('click', (e) => {
+      cubo1.rotation.y -= 0.1
+      document.getElementById("rot_y_text").innerText = `anguloy: ${cubo1.rotation.y}°`
+    })
+    document.getElementById("rot_z_up").addEventListener('click', (e) => {
+      cubo1.rotation.z += 0.1
+      document.getElementById("rot_z_text").innerText = `anguloz: ${cubo1.rotation.z}°`
+    })
+    document.getElementById("rot_z_down").addEventListener('click', (e) => {
+      cubo1.rotation.z -= 0.1
+      document.getElementById("rot_z_text").innerText = `anguloz: ${cubo1.rotation.z}°`
+    })
+    document.getElementById("p_x_up").addEventListener('click', (e) => {
+      cubo1.position.x += 0.1
+      document.getElementById("p_x_text").innerText = `posx: ${cubo1.position.x}°`
+    })
+    document.getElementById("p_x_down").addEventListener('click', (e) => {
+      cubo1.position.x -= 0.1
+      document.getElementById("p_x_text").innerText = `posx: ${cubo1.position.x}°`
+    })
+    document.getElementById("p_y_up").addEventListener('click', (e) => {
+      cubo1.position.y += 0.1
+      document.getElementById("p_y_text").innerText = `posy: ${cubo1.position.y}°`
+    })
+    document.getElementById("p_y_down").addEventListener('click', (e) => {
+      cubo1.position.y -= 0.1
+      document.getElementById("p_y_text").innerText = `posy: ${cubo1.position.y}°`
+    })
+    document.getElementById("p_z_up").addEventListener('click', (e) => {
+      cubo1.position.z += 0.1
+      document.getElementById("p_z_text").innerText = `posz: ${cubo1.position.z}°`
+    })
+    document.getElementById("p_z_down").addEventListener('click', (e) => {
+      cubo1.position.z -= 0.1
+      document.getElementById("p_z_text").innerText = `posz: ${cubo1.position.z}°`
+    })
+  </script>
+</body>
+</html>
