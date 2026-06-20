@@ -23,7 +23,7 @@ como opera? na versão v1.0.0, na renderização funciona no seguinte algoritmo
 - a base utilizada foi __algebra linear__, __trigonometria__ e __matrizes__
 - posição de cada vértice 
 \[
-$\text{V}_(x, y, z) = {...}
+v_(x,y,z)
 \]
 
 ## 📃 como utilizar
