@@ -22,7 +22,7 @@ como opera? na versão v1.0.0, na renderização funciona no seguinte algoritmo
 ## 🧮 Matemática
 - a base utilizada foi __algebra linear__, __trigonometria__ e __matrizes__
 - posição de cada vértice 
-$v_(x,y,z) = {...}$
+v<sub>(x,y,z)</sub> = {...}
 ## 📃 como utilizar
 ### 1. → new Cena()
 - cena seria um objeto para poder incrementar ou renderizar uma cena a cada ver que seja chamada um método específico (.main()) 
