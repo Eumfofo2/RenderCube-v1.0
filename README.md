@@ -6,24 +6,24 @@ como opera? na versão v1.0.0, na renderização funciona no seguinte algoritmo
     <thead>
         <tr>
             <th>modelos</th>
-            <th>Cargo</th>
-            <th>Cidade</th>
+            <th>preparação</th>
+            <th>renderização</th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td>teste</td>
-            <td>Desenvolvedora</td>
-            <td>Fortaleza</td>
-        </tr>
-        <tr>
-            <td>Bruno Costa</td>
-            <td>Designer</td>
-            <td>São Paulo</td>
+            <td>antes de rodar, e preciso que tenha pelo menos um modelo ativo na lista de modelso</td>
+            <td>na renderização em terceira pessoa, passa pela rotação com o objeto na posição do centro (vetor R3) (0, 0, 0) e dps posicionada (vetor R3)</td>
+            <td>passa as instruções de vértices, aresta e faces para renderizar como 2d</td>
         </tr>
     </tbody>
 </table>
-
+## 🧮 Matemática
+- a base utilizada foi __algebra linear__, __trigonometria__ e __matrizes__
+- posição de cada vértice 
+\[
+$\text{V}_(x, y, z) = {...}
+\]
 ## 📃 como utilizar
 ### 1. → new Cena()
 - cena seria um objeto para poder incrementar ou renderizar uma cena a cada ver que seja chamada um método específico (.main()) 
