@@ -22,8 +22,7 @@ como opera? na versão v1.0.0, na renderização funciona no seguinte algoritmo
             <td>São Paulo</td>
         </tr>
     </tbody>
-</table
-
+</table>
 ## 📃 como utilizar
 ### 1. → new Cena()
 - cena seria um objeto para poder incrementar ou renderizar uma cena a cada ver que seja chamada um método específico (.main()) 
@@ -46,5 +45,3 @@ const cena = new Cena(ctx,400,'#000000', canvas.width, canvas.height)
 ```js
 const plane = new Plane(...);
 ```
-
-## 
