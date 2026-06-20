@@ -18,12 +18,14 @@ como opera? na versão v1.0.0, na renderização funciona no seguinte algoritmo
         </tr>
     </tbody>
 </table>
+
 ## 🧮 Matemática
 - a base utilizada foi __algebra linear__, __trigonometria__ e __matrizes__
 - posição de cada vértice 
 \[
 $\text{V}_(x, y, z) = {...}
 \]
+
 ## 📃 como utilizar
 ### 1. → new Cena()
 - cena seria um objeto para poder incrementar ou renderizar uma cena a cada ver que seja chamada um método específico (.main()) 
