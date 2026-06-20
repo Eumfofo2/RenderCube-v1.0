@@ -1,6 +1,28 @@
 # RenderCube-v1.0
 RenderCubob e um renderizador totalmente feito a base de JavaScript e Canvas API do HTML5 (rodavel na CPU diretamente)
 
+como opera? na versão v1.0.0, na renderização funciona no seguinte algoritmo
+<table>
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Cargo</th>
+            <th>Cidade</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Ana Silva</td>
+            <td>Desenvolvedora</td>
+            <td>Fortaleza</td>
+        </tr>
+        <tr>
+            <td>Bruno Costa</td>
+            <td>Designer</td>
+            <td>São Paulo</td>
+        </tr>
+    </tbody>
+</table>
 ## 📃 como utilizar
 ### 1. → new Cena()
 - cena seria um objeto para poder incrementar ou renderizar uma cena a cada ver que seja chamada um método específico (.main()) 
