@@ -147,31 +147,31 @@ const cena = new Cena(ctx,400,'#000000', canvas.width, canvas.height)
 - 5. canvas.height → a altura do canvas
 
 - **métodos**: 
-- 1. .rotateZ(<object>, <number>): um método feito para retornar a rotação no sentido z 
+1. .rotateZ(<object>, <number>): um método feito para retornar a rotação no sentido z 
 ```js
 // exemplo de coordenadas e rotação em 45°
 const r = cena.rotateZ({x:1,y:1, z: 0.5}, 45)
 
 // como se está utilizando radiante, uma aproximação seria... {x: 0, y: 1.41421356, z: 0.5}
 ```
-- 2. .rotateY(<object>, <number>): um método feito para retornar a rotação no sentido y 
+2. .rotateY(<object>, <number>): um método feito para retornar a rotação no sentido y 
 ```js
 // exemplo de coordenadas e rotação em 45°
 const r = cena.rotateY({x:1,y:1, z: 0.5}, 45)
 
 // como se está utilizando radiante, uma aproximação seria {x: 1.06066017, y: 1, z: -0.350515166}
 ```
-- 3. .rotateX(<object>, <number>): um método feito para retornar a rotação no sentido x
+3. .rotateX(<object>, <number>): um método feito para retornar a rotação no sentido x
 ```js
 // exemplo de coordenadas e rotação em 45°
 const r = cena.rotateX({x:1,y:1, z: 0.5}, 45)
 
 // como se está utilizando radiante, uma aproximação seria {x: 1, y: 0.353553391, z: 1.06066017}
 ```
-- 4. .format(<object>): formata as coordenadas cartesiana 3D para forma que o Canvas consiga ler a posição de cada ponto ("2D")
-- 5. .clear_Canva(): limpa a tela por cada frame
-- 6. .add_Cube(<object>): adiciona um modelo a lista de modelos de cada cena
-- 7. .main(): inicia a operação de renderizar 
+4. .format(<object>): formata as coordenadas cartesiana 3D para forma que o Canvas consiga ler a posição de cada ponto ("2D")
+5. .clear_Canva(): limpa a tela por cada frame
+6. .add_Cube(<object>): adiciona um modelo a lista de modelos de cada cena
+7. .main(): inicia a operação de renderizar 
 ### 2. → new Cube()
 ## 🔍 observações
 - **🖥️ execução**: como se esta utilizando 
