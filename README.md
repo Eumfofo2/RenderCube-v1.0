@@ -60,9 +60,23 @@ const t = [
 ```
 
 - como cada objeto Cube está como padrão iniciado no centro (x,y,z) pode acabar evitando de na hora de rotação com matrizes n acabar orbitando a câmera (0,0,0), mais apenas no caso se primeiro for ajustado a posição e dps a rotação (no caso de terceira pessoa primeiro rotação e depois a posição)
-- rotação x,y,x
-$$\begin{pmatrix}\cos(\theta) & -\sin(\theta) & 0 & 0 \\\sin(\theta) & \cos(\theta) & 0 & 0 \\0 & 0 & 1 & 0 \\0 & 0 & 0 & 1\end{pmatrix}$$
+- rotação x, y e z:
+```
+// rotação x
+|x'|   | 1   0       0    | |x|
+|y'| = | 0 cos(0) -sin(0) |×|y|
+|z'|   | 0 sin(0)  cos(0) | |z|
 
+// rotação y
+|x'|   |  cos(0) 0 sin(0) | |x|
+|y'| = |    0    1   0    |×|y|
+|z'|   | -sin(0) 0 cos(0) | |z|
+
+// rotação z
+|x'|   | cos(0) -sin(0) 0 | |x|
+|y'| = | sin(0)  cos(0) 0 |×|y|
+|z'|   |   0       0    1 | |z|
+```
 ## 📃 como utilizar
 ### 1. → new Cena()
 - cena seria um objeto para poder incrementar ou renderizar uma cena a cada ver que seja chamada um método específico (.main()) 
