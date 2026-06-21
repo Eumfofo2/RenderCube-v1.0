@@ -77,6 +77,60 @@ const t = [
 |y'| = | sin(0)  cos(0) 0 |×|y|
 |z'|   |   0       0    1 | |z|
 ```
+- após uma multiplicação de matriz com o ângulo (omega) e as coordenadas, e passado para a parte de incrmenetar uma nova posição seguindo o vetor R3 de posição 
+```js
+const r = {
+  x: 0,
+  y: 0,
+  z: 0
+}
+const p = {
+  x: 0,
+  y: 0,
+  z: 5
+}
+// EX: essa função e uma rotação com o z 
+function rotate_Z({x, y, z}, r) {
+  // também pode se utilizar radiante seguindo uma setagem da rotação "r = r*(Math.PI/180)"
+  const sin = Math.sin(r)
+  const cos = Math.cos(r)
+  return {
+    x: x*cos - y*sin,
+    y: x*sin + y*cos,
+    z
+  }
+}
+// essa função iria retornar a incremenetacao da posição 
+function atualizar_Posicao({x, y, z}) {
+   return {x: x+p.x, y: y+p.y, z: z+p.z}
+}
+
+```
+- depois passado para parte de tradução de coordenadas cartesianas para uma leitura que o Canvas consegue realizar (+ponto de fuga com o z e o fov)
+```js
+// ... resto
+const FOV = 400 // exemplo de fov
+const w = canvas.width
+const h = canvas.height
+// uma "conversao" de 3D para 2D do canvas 
+function formatar_Canva({x, y, z}) {
+  return {
+    x:  x*(FOV/z)+(w/2),
+    y: -y*(FOV/z)+(h/2),
+    z
+  }
+}
+/*
+          FOV   w
+ x' = x × ——— + —
+           z    2
+ 
+           FOV   h
+ x' = -y × ——— + —
+            z    2
+*/
+```
+- e a renderização vai ser de acordo com a preferência de implementar outros algoritmos ou já traçar arestas ou faces e etc
 ## 📃 como utilizar
 ### 1. → new Cena()
 - cena seria um objeto para poder incrementar ou renderizar uma cena a cada ver que seja chamada um método específico (.main()) 
