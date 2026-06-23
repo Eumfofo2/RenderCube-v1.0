@@ -103,6 +103,11 @@
           y: 0,
           z: 0
         }
+        this.scale = {
+          x: 1,
+          y: 1,
+          z: 1
+        }
         this.b = true
         this.vertices = [
           {x:-0.5,y: 0.5,z: 0.5},
@@ -114,7 +119,8 @@
           [0, 1], [1, 2], [2, 3]
         ]
         this.faces = [
-          [0,1,2,3]
+          [0, 1, 3],
+          [1, 2, 3]
         ]
         this.transparencia = 1.0
         this.corRGB = `rgba(${cor[0]},${cor[1]},${cor[2]}, ${this.transparencia})`
@@ -129,7 +135,8 @@
           faces: this.faces,
           colorRGB: this.corRGB,
           rotate: this.rotation,
-          position: this.position
+          position: this.position,
+          scale: this.scale
         }
       }
     }
@@ -146,6 +153,11 @@
           x: 0,
           y: 0,
           z: 5
+        }
+        this.scale = {
+          x: 1,
+          y: 1,
+          z: 1
         }
         this.b = true
         this.vertices = [
@@ -165,12 +177,18 @@
         [3,0], [7,4]
         ]
         this.faces = [
-        [0,1,2,3], // frente
-        [4,5,6,7], // trás
-        [0,1,5,4], // topo
-        [1,2,6,5], // direita
-        [2,3,7,6], // baixo
-        [3,0,4,7]  // esquerda
+        [0, 1, 3],
+        [1, 2, 3],
+        [1, 5, 2],
+        [5, 6, 2],
+        [5, 4, 6],
+        [4, 7, 6],
+        [4, 0, 7],
+        [0, 3, 7],
+        [4, 5, 0],
+        [5, 1, 0],
+        [7, 6, 3],
+        [6, 2, 3]
         ]
         this.transparencia = 1.0
         this.corRGB = null
@@ -179,7 +197,7 @@
         }
         if (corRand) {
           this.corRGB = []
-          for (let i = 1; i <= 6; i++) {
+          for (let i = 1; i <= this.faces.length; i++) {
             this.corRGB.push(`rgba(${r()},${r()},${r()},${this.transparencia})`)
           }
         } else {
@@ -196,7 +214,8 @@
           faces: this.faces,
           colorRGB: this.corRGB,
           rotate: this.rotation,
-          position: this.position
+          position: this.position,
+          scale: this.scale
         }
       }
     }
@@ -210,32 +229,20 @@
         this.h = h
         this.cubes = []
       }
-      rotateZ(p, r = r*(Math.PI/180)) {
+      rotateZ(p, r = r*this.k) {
         const sin = Math.sin(r)
         const cos = Math.cos(r)
-        return {
-          x: p.x * cos - p.y * sin,
-          y: p.x * sin + p.y * cos,
-          z: p.z
-        }
+        return { x: p.x * cos - p.y * sin, y: p.x * sin + p.y * cos, z: p.z }
       }
-      rotateY(p, r = r*(Math.PI/180)) {
+      rotateY(p, r = r*this.k) {
         const cos = Math.cos(r)
         const sin = Math.sin(r)
-        return {
-          x: p.x * cos + p.z * sin,
-          y: p.y,
-          z: p.x * -sin + p.z * cos
-        }
+        return { x: p.x * cos + p.z * sin, y: p.y, z: p.x * -sin + p.z * cos }
       }
-      rotateX(p, r = r*(Math.PI/180)) {
+      rotateX(p, r = r*this.k) {
         const cos = Math.cos(r)
         const sin = Math.sin(r)
-        return {
-          x: p.x,
-          y: p.y * cos - p.z * sin,
-          z: p.y * sin + p.z * cos
-        }
+        return { x: p.x, y: p.y * cos - p.z * sin, z: p.y * sin + p.z * cos }
       }
       format(p) {
         const e = this.fov / p.z
@@ -260,7 +267,75 @@
         this.clear_Canva() //resetar tela
         let count = -1
         for (const l of this.cubes) {
-          for (const a of l.arestas) {
+          const facesOrdenadas = []
+          for (const f of l.faces) {
+            count++
+            const __l3D_1 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[f[0]],l.rotate.x), l.rotate.y), l.rotate.z)
+            const __l3D_2 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[f[1]],l.rotate.x), l.rotate.y), l.rotate.z)
+            const __l3D_3 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[f[2]],l.rotate.x), l.rotate.y), l.rotate.z)
+            const __l3D_1_p = {
+              x: __l3D_1.x+l.position.x,
+              y: __l3D_1.y+l.position.y,
+              z: __l3D_1.z+l.position.z
+            }
+            const __l3D_2_p = {
+              x: __l3D_2.x+l.position.x,
+              y: __l3D_2.y+l.position.y,
+              z: __l3D_2.z+l.position.z
+            }
+            const __l3D_3_p = {
+              x: __l3D_3.x+l.position.x,
+              y: __l3D_3.y+l.position.y,
+              z: __l3D_3.z+l.position.z
+            }
+            const a = {
+              x: __l3D_2_p.x - __l3D_1_p.x,
+              y: __l3D_2_p.y - __l3D_1_p.y,
+              z: __l3D_2_p.z - __l3D_1_p.z 
+            }
+            const b = {
+              x: __l3D_3_p.x - __l3D_1_p.x,
+              y: __l3D_3_p.y - __l3D_1_p.y,
+              z: __l3D_3_p.z - __l3D_1_p.z 
+            }
+            const normal = {
+              x: a.y * b.z - a.z * b.y,
+              y: a.z * b.x - a.x * b.z,
+              z: a.x * b.y - a.y * b.x
+            }
+            const view = {
+              x: -__l3D_1_p.x,
+              y: -__l3D_1_p.y,
+              z: -__l3D_1_p.z 
+            }
+            const d = normal.x * view.x + normal.y * view.y + normal.z * view.z
+            if (d > 0) continue
+            const mZ = (__l3D_1_p.z+__l3D_2_p.z+__l3D_3_p.z)/3
+            facesOrdenadas.push({
+              face: f,
+              z: mZ,
+              p1: __l3D_1_p,
+              p2: __l3D_2_p,
+              p3: __l3D_3_p,
+              cor: count
+            })
+          }
+          facesOrdenadas.sort((a,b) => b.z - a.z)
+          for (const face of facesOrdenadas) {
+            const p1 = this.format(face.p1);
+            const p2 = this.format(face.p2);
+            const p3 = this.format(face.p3);
+            this.ctx.beginPath();
+            this.ctx.moveTo(p1.x, p1.y);
+            this.ctx.lineTo(p2.x, p2.y);
+            this.ctx.lineTo(p3.x, p3.y);
+            this.ctx.closePath();
+            if (typeof l.colorRGB !== 'string')
+              this.ctx.fillStyle = l.colorRGB[face.cor];
+            else this.ctx.fillStyle = l.colorRGB;
+            this.ctx.fill();
+          }
+          /* for (const a of l.arestas) {
             const __l3D_1 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[a[0]],l.rotate.x), l.rotate.y), l.rotate.z)
             const __l3D_2 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[a[1]],l.rotate.x), l.rotate.y), l.rotate.z)
             const __l3D_1_p = {
@@ -282,57 +357,16 @@
             this.ctx.lineWidth = 5
             this.ctx.stroke()
             this.ctx.closePath()
-          }
-          for (const f of l.faces) {
-            count++
-            const __l3D_1 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[f[0]],l.rotate.x), l.rotate.y), l.rotate.z)
-            const __l3D_2 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[f[1]],l.rotate.x), l.rotate.y), l.rotate.z)
-            const __l3D_3 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[f[2]],l.rotate.x), l.rotate.y), l.rotate.z)
-            const __l3D_4 = this.rotateZ(this.rotateY(this.rotateX(l.vertices[f[3]],l.rotate.x), l.rotate.y), l.rotate.z)
-            const __l3D_1_p = {
-              x: __l3D_1.x+l.position.x,
-              y: __l3D_1.y+l.position.y,
-              z: __l3D_1.z+l.position.z
-            }
-            const __l3D_2_p = {
-              x: __l3D_2.x+l.position.x,
-              y: __l3D_2.y+l.position.y,
-              z: __l3D_2.z+l.position.z
-            }
-            const __l3D_3_p = {
-              x: __l3D_3.x+l.position.x,
-              y: __l3D_3.y+l.position.y,
-              z: __l3D_3.z+l.position.z
-            }
-            const __l3D_4_p = {
-              x: __l3D_4.x+l.position.x,
-              y: __l3D_4.y+l.position.y,
-              z: __l3D_4.z+l.position.z
-            }   
-            const __l2D_1 = this.format(__l3D_1_p)
-            const __l2D_2 = this.format(__l3D_2_p)
-            const __l2D_3 = this.format(__l3D_3_p)
-            const __l2D_4 = this.format(__l3D_4_p)
-            this.ctx.beginPath()
-            this.ctx.moveTo(__l2D_1.x,   __l2D_1.y)
-            this.ctx.lineTo(__l2D_2.x, __l2D_2.y)
-            this.ctx.lineTo(__l2D_3.x, __l2D_3.y)
-            this.ctx.lineTo(__l2D_4.x, __l2D_4.y)
-            this.ctx.closePath()
-            if (typeof l.colorRGB !== 'string')
-            this.ctx.fillStyle = l.colorRGB[count]
-            else this.ctx.fillStyle=l.colorRGB
-            this.ctx.fill()
-          }
+          } */
         }
       }
     }
     const cubo1 = new Cube(true, [], canvas.width, canvas.height)
-    cubo1.transparencia = 0.5
     const plano = new Plane([255,255,0], canvas.width, canvas.height)
     const cena = new Cena(ctx,400,'#000000', canvas.width, canvas.height)
     cena.add_Cube(cubo1.return_Obj())
-    const p = /Win32|MacIntel|Linux x86_64/i.test(navigator.userAgent);
+    const p = /Win32|MacIntel|Linux x86_64|Win64/i.test(navigator.userAgent);
+    // fps + renderização
     let lastTime = 0
     let frameCount = 0
     let fps = 0
@@ -401,7 +435,7 @@
         if (e.target.id === 'pos_x_down') return __text_p.innerText = j(1, cubo1, "x", 0.1, "-")
         if (e.target.id === 'pos_x_up') return __text_p.innerText = j(1, cubo1, "x", 0.1, "+")
         if (e.target.id === 'pos_y_up') return __text_p.innerText = j(1, cubo1, "y", 0.1, "+")
-        if (e.target.id === 'pos_y_down') return __text_p.innerText = j(1, cubo1, "z", 0.1, "-")
+        if (e.target.id === 'pos_y_down') return __text_p.innerText = j(1, cubo1, "y", 0.1, "-")
         
         // rotação
         if (e.target.id === 'rot_z_up') return __text_r.innerText = j(0, cubo1, "z", 0.1, "+")
@@ -409,7 +443,7 @@
         if (e.target.id === 'rot_x_down') return __text_r.innerText = j(0, cubo1, "x", 0.1, "-")
         if (e.target.id === 'rot_x_up') return __text_r.innerText = j(0, cubo1, "x", 0.1, "+")
         if (e.target.id === 'rot_y_up') return __text_r.innerText = j(0, cubo1, "y", 0.1, "+")
-        if (e.target.id === 'rot_y_down') return __text_r.innerText = j(0, cubo1, "z", 0.1, "-")
+        if (e.target.id === 'rot_y_down') return __text_r.innerText = j(0, cubo1, "y", 0.1, "-")
       })
     }
   </script>
