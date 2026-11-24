@@ -70,11 +70,67 @@ class Cube {
     }
   }
 }
+class Modelo {
+  /**
+  * essa classe transforma a partir de referência do arquivo age midelo legivel pra classe "Cena"
+  * @param {array} cor - cor em array.
+  */
+  constructor(cor) {
+    this.rotation = {x: 30, y: 0, z: 0}
+    this.position = {x: 0, y: -2, z: 5}
+    this.scale    = {x: 1, y: 1, z: 1}
+    this.vertices = []
+    this.faces    = []
+    this.transparencia = 1.0
+    this.corRGB   = cor
+  }
+  async carregar(m) {
+    try {
+      const cont = await fetch(m)
+      if (!cont.ok) throw new Error(`Erro HTTP: ${cont.status}`);
+      const texto = await cont.text()
+      
+      for (const linha of texto.split(/\r?\n/)) {
+        const partes = linha.trim().split(/\s+/);
+        if (partes[0] === 'v') {
+          this.vertices.push({
+            x: parseFloat(partes[1]),
+            y: parseFloat(partes[2]),
+            z: parseFloat(partes[3])
+          })
+        } else if (partes[0] === 'f') {
+          const idx = partes.slice(1)
+            .map(p => {
+              const i = parseInt(p)
+              return i < 0 ? this.vertices.length + i : i - 1
+          })
+          for (let i = 1; i < idx.length - 1; i++) {
+            this.faces.push([idx[0], idx[i], idx[i + 1]])
+          }
+        }
+      }
+    } catch (erro) {
+      console.error("Falha ao carregar o arquivo .obj:", erro);
+    }
+    return this
+  }
+  return_Obj() {
+    return {
+      transparencia: this.transparencia,
+      vertices:      this.vertices,
+      faces:         this.faces,
+      colorRGB:      this.corRGB,
+      rotate:        this.rotation,
+      position:      this.position,
+      scale:         this.scale
+    }
+  }
+}
 class Cena {
   constructor(ctx, fov, w, h) {
-    this.camera = [0, 0, 1]
+    this.camera = [0, 0, 0]
+    this.luz    = [8, 4, 0]
     this.k      = Math.PI/180
-    this.luz    = [1, 1, 1]
     this.ctx    = ctx
     this.fov    = fov
     this.w      = w
@@ -82,7 +138,7 @@ class Cena {
     this.models = []
   }
   rotateZ(p, deg) {
-    const r   = deg*this.k
+    const r   = deg
     const sin = Math.sin(r)
     const cos = Math.cos(r)
     return {
@@ -92,7 +148,7 @@ class Cena {
     }
   }
   rotateY(p, deg) {
-    const r   = deg*this.k
+    const r   = deg
     const cos = Math.cos(r)
     const sin = Math.sin(r)
     return {
@@ -102,7 +158,7 @@ class Cena {
     }
   }
   rotateX(p, deg) {
-    const r   = deg*this.k
+    const r   = deg
     const cos = Math.cos(r)
     const sin = Math.sin(r)
     return {
@@ -193,7 +249,7 @@ class Cena {
           z: -__l3D_1_p.z 
         }
         const d = n.x * view.x + n.y * view.y + n.z * view.z
-        if (d > 0) continue
+        if (d < 0) continue
         
         // media + iluminação (simples)
         const mX = (__l3D_1_p.x+__l3D_2_p.x+__l3D_3_p.x)/3
@@ -211,7 +267,7 @@ class Cena {
           y: mv.y / mgM,
           z: mv.z / mgM
         }
-        const nL = (normal.x*w.x + normal.y*w.y + normal.z*w.z)
+        const nL = -(normal.x*w.x + normal.y*w.y + normal.z*w.z)
         // preparar para lançar 
         facesOrdenadas.push({
           face: f,
@@ -241,10 +297,11 @@ class Cena {
     }
   }
 }
+const model = await new Modelo([255, 255, 255]).carregar("") // arquivo 
 const cubo1 = new Cube([250, 100, 50])
-const plano = new Plane([255, 255, 0])
 const cena  = new Cena(ctx, 90,  canvas.width, canvas.height)
-cena.add_Cube(cubo1.return_Obj())
+//cena.add_Cube(cubo1.return_Obj())
+cena.add_Cube(model.return_Obj())
 const p = /Win32|MacIntel|Linux x86_64|Win64/i.test(navigator.userAgent);
 // fps + renderização
 let   lastTime   = 0
@@ -253,6 +310,7 @@ let   fps = 0
 const t = `[ram do disp: ${navigator.deviceMemory}GB]`
 function main() {
   cena.main()
+  cena.models[0].rotate.y += 0.02
   const now = performance.now()
   frameCount++
   if (now - lastTime >= 1000) {
